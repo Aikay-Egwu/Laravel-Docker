@@ -55,7 +55,7 @@ services:
         - PHPGROUP=${PHPGROUP:-www-data}
     container_name: php_compose
     ports:
-      - "9000:9000"
+      - "9001:9000"
     volumes:
       - ./src:/var/www/html:delegated
     networks:
