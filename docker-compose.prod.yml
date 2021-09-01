@@ -1,0 +1,62 @@
+version: '3.8'
+
+networks:
+  laravel:
+
+services:
+  server:
+    build:
+      context: ./configs/server
+      dockerfile: Dockerfile
+      args:
+        - NGINXUSER=${NGINXUSER:-www-data}
+        - NGINXGROUP=${NGINXGROUP:-www-data}
+    container_name: nginx_server
+    ports:
+      - 80:80
+    volumes:
+      - ./src:/var/www/html:delegated
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - laravel
+  
+  mysql:
+    image: mysql:5.7.29
+    container_name: mysql_compose
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 3406:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+      retries: 3
+      timeout: 5s
+    networks:
+      - laravel
+    volumes:
+      - ./mysql:/var/lib/mysql
+  
+  php:
+    build:
+      context: ./configs/php
+      dockerfile: Dockerfile
+      args:
+        - PHPUSER=${PHPUSER:-www-data}
+        - PHPGROUP=${PHPGROUP:-www-data}
+    container_name: php_compose
+    ports:
+      - "9001:9000"
+    volumes:
+      - ./src:/var/www/html:delegated
+    networks:
+      - laravel
