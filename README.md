@@ -13,3 +13,14 @@ run
 docker-compose up --build -d
 
 goto http://localhost:8080 to see site
+
+# In production
+Make sure you indicate the -f flag to run the right yml file
+docker-compose -f docker-compose.prod.yml --build -d
+
+
+# To run composer
+docker-compose run --rm composer package/name
+
+# To run artisan
+docker-compose run -rm artisan command

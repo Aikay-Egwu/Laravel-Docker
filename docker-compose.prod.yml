@@ -60,3 +60,23 @@ services:
       - ./src:/var/www/html:delegated
     networks:
       - laravel
+
+  composer:
+    build:
+      context: ./configs/composer
+      dockerfile: Dockerfile
+      args:
+        - PHPUSER=${PHPUSER:-www-data}
+        - PHPGROUP=${PHPGROUP:-www-data}
+    container_name: composer_compose
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - php
+    user: ${PHPUSER:-www-data}
+    entrypoint: ['composer', '--ignore-platform-reqs']
+    networks:
+      - laravel
+
+  
